@@ -9,7 +9,6 @@
   Student ID  : 00020312
 ============================================================
 """
-# install package streamlit first
 import streamlit as st
 import json
 import csv
@@ -17,6 +16,9 @@ import re
 import io
 from datetime import datetime
 
+# ══════════════════════════════════════════════════════════
+#  CONSTANTS  — demonstrates all required variable types
+# ══════════════════════════════════════════════════════════
 ALLOWED_FILE_FORMATS: tuple = ("json", "csv", "txt")
 VALID_MONTHS: frozenset = frozenset(range(1, 13))
 QUESTIONS_FILE: str = "questions.json"
@@ -24,10 +26,15 @@ MAX_SCORE_PER_QUESTION: int = 4
 PASSING_THRESHOLD: float = 39.5
 SURVEY_TITLE: str = "Learning from Mistakes Attitude & Academic Growth Tracking Scale"
 
+
+# ══════════════════════════════════════════════════════════
+#  DATA LOADING  — reads questions from questions.json
+# ══════════════════════════════════════════════════════════
 def load_survey_data() -> tuple:
     """
     Load questions and states from questions.json.
     Uses a WHILE loop with retry logic.
+    Falls back to hardcoded data if file is missing.
     Returns (questions: list, states: list, source: str).
     """
     questions: list = []
@@ -59,10 +66,15 @@ def load_survey_data() -> tuple:
 
     return questions, states, source
 
+
+# ══════════════════════════════════════════════════════════
+#  INPUT VALIDATION FUNCTIONS
+# ══════════════════════════════════════════════════════════
 def validate_name_field(value: str) -> tuple:
     """
     Validate a name (surname or given name).
     Uses a FOR loop to inspect each character.
+    Allowed: letters, hyphens, apostrophes, spaces.
     Returns (is_valid: bool, error_message: str).
     """
     if not value.strip():
@@ -74,14 +86,16 @@ def validate_name_field(value: str) -> tuple:
             invalid_chars.add(ch)
 
     if invalid_chars:
-        return False, f"Invalid character(s): {invalid_chars}. Only letters, hyphens, apostrophes, and spaces allowed."
-
+        return False, (
+            f"Invalid character(s): {invalid_chars}. "
+            "Only letters, hyphens, apostrophes, and spaces allowed."
+        )
     return True, ""
 
 
 def validate_all_personal_fields(fields: dict) -> list:
     """
-    Validate all personal info fields at once using a WHILE loop.
+    Validate all personal info fields using a WHILE loop.
     Returns a list of error messages (empty list = all valid).
     """
     errors: list = []
@@ -97,13 +111,14 @@ def validate_all_personal_fields(fields: dict) -> list:
             msg: str
             is_valid, msg = validate_name_field(value)
             if not is_valid:
-                errors.append(f"{'Surname' if key == 'surname' else 'Given name'}: {msg}")
+                label = "Surname" if key == "surname" else "Given name"
+                errors.append(f"{label}: {msg}")
 
         elif key == "student_id":
             if not value.strip():
                 errors.append("Student ID: cannot be empty.")
             elif not value.strip().isdigit():
-                errors.append("Student ID: must contain digits only (no letters or symbols).")
+                errors.append("Student ID: must contain digits only.")
 
         elif key == "date_of_birth":
             dob_valid, dob_msg = validate_date_of_birth(value)
@@ -134,14 +149,17 @@ def validate_date_of_birth(raw: str) -> tuple:
     elif year < 1900 or year > datetime.now().year:
         return False, f"Year must be between 1900 and {datetime.now().year}."
     else:
-        days_in_month: dict = {         # dict — variable type
+        days_in_month: dict = {
             1: 31,
             2: 29 if (year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)) else 28,
             3: 31, 4: 30, 5: 31, 6: 30,
             7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31,
         }
         if day < 1 or day > days_in_month[month]:
-            return False, f"Day must be between 01 and {days_in_month[month]} for month {month:02d}."
+            return False, (
+                f"Day must be between 01 and {days_in_month[month]} "
+                f"for month {month:02d}."
+            )
 
     birth_date = datetime(year, month, day)
     age_days: int = (datetime.now() - birth_date).days
@@ -150,9 +168,14 @@ def validate_date_of_birth(raw: str) -> tuple:
 
     return True, ""
 
+
+# ══════════════════════════════════════════════════════════
+#  SCORE CALCULATION & STATE LOOKUP
+# ══════════════════════════════════════════════════════════
 def calculate_score(answers: dict, questions: list) -> tuple:
     """
     Calculate total score from answers dict.
+    Uses FOR loop and range variable type.
     Returns (total_score: int, scores_per_question: list, max_possible: int).
     """
     scores_per_question: list = []
@@ -175,8 +198,17 @@ def get_psychological_state(total_score: int, states: list) -> dict:
     for state in states:
         if state["min"] <= total_score <= state["max"]:
             return state
-    return {"label": "Unknown", "description": "Score out of range.", "emoji": "❓", "color": "#888"}
+    return {
+        "label": "Unknown",
+        "description": "Score out of range.",
+        "emoji": "❓",
+        "color": "#888888",
+    }
 
+
+# ══════════════════════════════════════════════════════════
+#  FILE GENERATION FOR DOWNLOAD  (persistence — LO3)
+# ══════════════════════════════════════════════════════════
 def generate_json_bytes(result_data: dict) -> bytes:
     """Serialise result data to JSON bytes for download."""
     return json.dumps(result_data, indent=4, ensure_ascii=False).encode("utf-8")
@@ -189,16 +221,16 @@ def generate_csv_bytes(result_data: dict) -> bytes:
 
     writer.writerow(["Field", "Value"])
     summary_fields: list = [
-        ("Survey", result_data["survey"]),
-        ("Name", result_data["respondent"]["name"]),
-        ("Student ID", result_data["respondent"]["student_id"]),
-        ("Date of Birth", result_data["respondent"]["date_of_birth"]),
-        ("Timestamp", result_data["timestamp"]),
-        ("Total Score", result_data["total_score"]),
-        ("Max Possible", result_data["max_possible"]),
-        ("Percentage", f"{result_data['percentage']}%"),
-        ("Psychological State", result_data["psychological_state"]),
-        ("Description", result_data["description"]),
+        ("Survey",             result_data["survey"]),
+        ("Name",               result_data["respondent"]["name"]),
+        ("Student ID",         result_data["respondent"]["student_id"]),
+        ("Date of Birth",      result_data["respondent"]["date_of_birth"]),
+        ("Timestamp",          result_data["timestamp"]),
+        ("Total Score",        result_data["total_score"]),
+        ("Max Possible",       result_data["max_possible"]),
+        ("Percentage",         f"{result_data['percentage']}%"),
+        ("Psychological State",result_data["psychological_state"]),
+        ("Description",        result_data["description"]),
     ]
     for field, value in summary_fields:
         writer.writerow([field, value])
@@ -253,7 +285,7 @@ def build_result_data(ss) -> dict:
     state: dict = ss["state"]
 
     answer_details: list = []
-    for i in range(len(questions)):
+    for i in range(len(questions)):             # FOR loop
         q = questions[i]
         chosen_idx: int = answers.get(i, 0)
         answer_details.append({
@@ -279,13 +311,17 @@ def build_result_data(ss) -> dict:
         "answers": answer_details,
     }
 
+
+# ══════════════════════════════════════════════════════════
+#  PAGE RENDERERS
+# ══════════════════════════════════════════════════════════
 def page_menu(questions: list, states: list, source: str) -> None:
     """Render the main menu / welcome screen."""
     st.markdown(
         """
         <div style='text-align:center; padding: 2rem 0 1rem 0;'>
-            <h1 style='font-size:2rem; color:#1a1a2e;'>📚 Academic Growth Tracking Scale</h1>
-            <p style='font-size:1.05rem; color:#555; max-width:650px; margin:auto;'>
+            <h1 style='font-size:2rem;'>📚 Academic Growth Tracking Scale</h1>
+            <p style='font-size:1.05rem; color:#888; max-width:650px; margin:auto;'>
                 <em>Learning from Mistakes Attitude Survey</em><br>
                 Westminster International University in Tashkent
             </p>
@@ -316,11 +352,12 @@ def page_menu(questions: list, states: list, source: str) -> None:
         st.markdown(f"""
         **Survey:** {SURVEY_TITLE}
 
-        This survey measures your attitude toward academic mistakes and your ability to track and grow from them.
-        It consists of **{len(questions)} questions**, each with **5 answer options** scored 0–4.
+        This survey measures your attitude toward academic mistakes and your ability
+        to track and grow from them. It consists of **{len(questions)} questions**,
+        each with **5 answer options** scored 0–4.
 
-        Your total score places you in one of **{len(states)} psychological state categories**, ranging from
-        *Exceptional Growth Mindset* to *Fixed Mindset Tendency*.
+        Your total score places you in one of **{len(states)} psychological state
+        categories**, ranging from *Exceptional Growth Mindset* to *Fixed Mindset Tendency*.
 
         Questions loaded from: **{source}**
         """)
@@ -357,11 +394,15 @@ def page_personal_info() -> None:
         with col4:
             student_id = st.text_input(
                 "Student ID *",
-                placeholder="e.g. 123456",
+                placeholder="e.g. 00020312",
                 help="Digits only.",
             )
 
-        submitted = st.form_submit_button("Continue to Survey →", use_container_width=True, type="primary")
+        submitted = st.form_submit_button(
+            "Continue to Survey →",
+            use_container_width=True,
+            type="primary",
+        )
 
         if submitted:
             fields: dict = {
@@ -393,7 +434,8 @@ def page_survey(questions: list) -> None:
     """Render the survey questionnaire."""
     st.markdown("## 📋 Survey Questions")
     st.markdown(
-        f"*Hello, **{st.session_state.get('given_name', '')} {st.session_state.get('surname', '')}**! "
+        f"*Hello, **{st.session_state.get('given_name', '')} "
+        f"{st.session_state.get('surname', '')}**! "
         "Please answer all questions honestly. There are no right or wrong answers.*"
     )
     st.progress(0.5, text="Step 2 of 3 — Answering Questions")
@@ -402,8 +444,7 @@ def page_survey(questions: list) -> None:
     answers: dict = st.session_state.get("answers", {})
 
     with st.form("survey_form"):
-        # FOR loop — iterate through all questions
-        for i in range(len(questions)):     # range — variable type
+        for i in range(len(questions)):         # FOR loop + range variable type
             q = questions[i]
             option_labels: list = [opt["text"] for opt in q["options"]]
 
@@ -419,23 +460,31 @@ def page_survey(questions: list) -> None:
             answers[i] = option_labels.index(chosen)
             st.markdown("---")
 
-        submitted = st.form_submit_button("Submit & See Results →", use_container_width=True, type="primary")
+        submitted = st.form_submit_button(
+            "Submit & See Results →",
+            use_container_width=True,
+            type="primary",
+        )
 
         if submitted:
-            # Check all questions answered (they always have a default, so this is guaranteed)
-            unanswered: list = [i + 1 for i in range(len(questions)) if i not in answers]
+            unanswered: list = [
+                i + 1 for i in range(len(questions)) if i not in answers
+            ]
             if unanswered:
                 st.error(f"Please answer all questions. Missing: Q{unanswered}")
             else:
                 total, scores_per_q, max_possible = calculate_score(answers, questions)
-                state_info: dict = get_psychological_state(total, st.session_state["states"])
-
+                state_info: dict = get_psychological_state(
+                    total, st.session_state["states"]
+                )
                 st.session_state["answers"] = answers
                 st.session_state["total_score"] = total
                 st.session_state["scores_per_question"] = scores_per_q
                 st.session_state["max_possible"] = max_possible
                 st.session_state["state"] = state_info
-                st.session_state["timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                st.session_state["timestamp"] = datetime.now().strftime(
+                    "%Y-%m-%d %H:%M:%S"
+                )
                 st.session_state["page"] = "results"
                 st.rerun()
 
@@ -456,14 +505,17 @@ def page_results(questions: list) -> None:
     st.progress(1.0, text="Step 3 of 3 — Your Results")
     st.markdown("## 🎯 Your Results")
 
+    # Result card
     st.markdown(
         f"""
-        <div style='background:{state["color"]}18; border-left: 6px solid {state["color"]};
+        <div style='border-left: 6px solid {state["color"]};
                     border-radius:8px; padding:1.5rem; margin-bottom:1rem;'>
             <h2 style='color:{state["color"]}; margin:0;'>
                 {state["emoji"]} {state["label"]}
             </h2>
-            <p style='margin:0.5rem 0 0 0; font-size:1rem;'>{state["description"]}</p>
+            <p style='margin:0.5rem 0 0 0; font-size:1rem;'>
+                {state["description"]}
+            </p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -472,25 +524,32 @@ def page_results(questions: list) -> None:
     col1, col2, col3 = st.columns(3)
     col1.metric("Total Score", f"{total} / {max_possible}")
     col2.metric("Percentage", f"{percentage}%")
-    col3.metric("Respondent", f"{st.session_state.get('given_name', '')} {st.session_state.get('surname', '')}")
+    col3.metric(
+        "Respondent",
+        f"{st.session_state.get('given_name', '')} "
+        f"{st.session_state.get('surname', '')}",
+    )
 
     st.divider()
 
     with st.expander("📊 Score Breakdown by Question", expanded=False):
-        import json as _json
         chart_data: dict = {
             "Question": [f"Q{i+1}" for i in range(len(scores_per_q))],
             "Score": scores_per_q,
         }
-        st.bar_chart(data=chart_data, x="Question", y="Score", use_container_width=True)
+        st.bar_chart(
+            data=chart_data, x="Question", y="Score", use_container_width=True
+        )
 
     with st.expander("📝 Detailed Answer Review", expanded=False):
-        for i in range(len(questions)):
+        for i in range(len(questions)):         # FOR loop
             q = questions[i]
             chosen_idx: int = answers.get(i, 0)
             chosen_text: str = q["options"][chosen_idx]["text"]
             sc: int = scores_per_q[i]
-            color: str = "#1a7f3c" if sc <= 1 else ("#e0a500" if sc <= 2 else "#c0392b")
+            color: str = (
+                "#1a7f3c" if sc <= 1 else ("#e0a500" if sc <= 2 else "#c0392b")
+            )
             st.markdown(
                 f"**Q{i+1}.** {q['text']}  \n"
                 f"→ *{chosen_text}* &nbsp; "
@@ -502,15 +561,16 @@ def page_results(questions: list) -> None:
         for s in st.session_state["states"]:
             marker = " ◀ **You are here**" if s["label"] == state["label"] else ""
             st.markdown(
-                f"<span style='color:{s.get('color','#333')};'>**{s['emoji']} {s['label']}**</span>"
+                f"<span style='color:{s.get('color','#333')};'>"
+                f"**{s['emoji']} {s['label']}**</span>"
                 f" ({s['min']}–{s['max']} pts){marker}",
                 unsafe_allow_html=True,
             )
             st.caption(s["description"])
 
     st.divider()
-
     st.markdown("### 💾 Save Your Results")
+
     result_data: dict = build_result_data(st.session_state)
     ts: str = datetime.now().strftime("%Y%m%d_%H%M%S")
     sid: str = st.session_state.get("student_id", "000000")
@@ -544,8 +604,10 @@ def page_results(questions: list) -> None:
 
     st.divider()
     if st.button("🔄 Take Survey Again", use_container_width=True):
-        for key in ["answers", "total_score", "scores_per_question", "max_possible",
-                    "state", "timestamp", "surname", "given_name", "date_of_birth", "student_id"]:
+        for key in [
+            "answers", "total_score", "scores_per_question", "max_possible",
+            "state", "timestamp", "surname", "given_name", "date_of_birth", "student_id",
+        ]:
             st.session_state.pop(key, None)
         st.session_state["page"] = "menu"
         st.rerun()
@@ -559,7 +621,7 @@ def page_load_results() -> None:
     uploaded = st.file_uploader(
         "Choose a result file",
         type=["json", "csv", "txt"],
-        help="Files saved by this application — named result_STUDENTID_TIMESTAMP.json/csv/txt",
+        help="Files saved by this app — named result_STUDENTID_TIMESTAMP.json/csv/txt",
     )
 
     if uploaded is not None:
@@ -586,10 +648,12 @@ def page_load_results() -> None:
 
                 pct: float = data.get("percentage", 0)
                 col_a, col_b, col_c = st.columns(3)
-                col_a.metric("Score", f"{data.get('total_score', 'N/A')} / {data.get('max_possible', 'N/A')}")
+                col_a.metric(
+                    "Score",
+                    f"{data.get('total_score','N/A')} / {data.get('max_possible','N/A')}",
+                )
                 col_b.metric("Percentage", f"{pct}%")
                 col_c.metric("State", data.get("psychological_state", "N/A"))
-
                 st.info(f"📝 {data.get('description', '')}")
 
                 with st.expander("Full Answer Breakdown"):
@@ -605,7 +669,7 @@ def page_load_results() -> None:
             st.markdown("**CSV Contents:**")
             lines: list = content.splitlines()
             display_rows: list = []
-            for line in lines:          # for loop
+            for line in lines:
                 if line.strip():
                     display_rows.append(line)
             st.code("\n".join(display_rows[:15]))
@@ -618,6 +682,306 @@ def page_load_results() -> None:
         st.session_state["page"] = "menu"
         st.rerun()
 
+
+# ══════════════════════════════════════════════════════════
+#  HARDCODED FALLBACK DATA
+#  (used only if questions.json is missing)
+# ══════════════════════════════════════════════════════════
+HARDCODED_QUESTIONS: list = [
+    {
+        "id": 1,
+        "text": "When you make an academic mistake, how do you typically feel afterward?",
+        "options": [
+            {"text": "Motivated to improve immediately", "score": 0},
+            {"text": "Slightly discouraged but recover quickly", "score": 1},
+            {"text": "Neutral — it happens to everyone", "score": 2},
+            {"text": "Discouraged for a while", "score": 3},
+            {"text": "Very discouraged and unmotivated", "score": 4},
+        ],
+    },
+    {
+        "id": 2,
+        "text": "How often do you reflect on the reasons behind your academic errors?",
+        "options": [
+            {"text": "Always", "score": 0},
+            {"text": "Often", "score": 1},
+            {"text": "Sometimes", "score": 2},
+            {"text": "Rarely", "score": 3},
+            {"text": "Never", "score": 4},
+        ],
+    },
+    {
+        "id": 3,
+        "text": "When you receive a low grade, what is your first reaction?",
+        "options": [
+            {"text": "Analyse what went wrong and plan to fix it", "score": 0},
+            {"text": "Seek feedback from the teacher", "score": 1},
+            {"text": "Accept it and move on", "score": 2},
+            {"text": "Feel frustrated and dwell on it", "score": 3},
+            {"text": "Give up on the subject", "score": 4},
+        ],
+    },
+    {
+        "id": 4,
+        "text": "How frequently do you revisit past mistakes to extract lessons from them?",
+        "options": [
+            {"text": "Always", "score": 0},
+            {"text": "Often", "score": 1},
+            {"text": "Sometimes", "score": 2},
+            {"text": "Rarely", "score": 3},
+            {"text": "Never", "score": 4},
+        ],
+    },
+    {
+        "id": 5,
+        "text": "Do you believe your academic abilities can be developed through effort?",
+        "options": [
+            {"text": "Strongly agree", "score": 0},
+            {"text": "Agree", "score": 1},
+            {"text": "Neutral", "score": 2},
+            {"text": "Disagree", "score": 3},
+            {"text": "Strongly disagree", "score": 4},
+        ],
+    },
+    {
+        "id": 6,
+        "text": "How often do you actively seek constructive feedback after making errors?",
+        "options": [
+            {"text": "Always", "score": 0},
+            {"text": "Often", "score": 1},
+            {"text": "Sometimes", "score": 2},
+            {"text": "Rarely", "score": 3},
+            {"text": "Never", "score": 4},
+        ],
+    },
+    {
+        "id": 7,
+        "text": "When you struggle with an academic topic, how do you respond?",
+        "options": [
+            {"text": "Seek extra resources and help immediately", "score": 0},
+            {"text": "Ask for help eventually", "score": 1},
+            {"text": "Struggle on my own for a long time", "score": 2},
+            {"text": "Avoid the topic as much as possible", "score": 3},
+            {"text": "Give up on understanding it", "score": 4},
+        ],
+    },
+    {
+        "id": 8,
+        "text": "How often do you set new academic goals after identifying a personal weakness?",
+        "options": [
+            {"text": "Always", "score": 0},
+            {"text": "Often", "score": 1},
+            {"text": "Sometimes", "score": 2},
+            {"text": "Rarely", "score": 3},
+            {"text": "Never", "score": 4},
+        ],
+    },
+    {
+        "id": 9,
+        "text": "How comfortable are you discussing your academic mistakes with classmates or teachers?",
+        "options": [
+            {"text": "Very comfortable", "score": 0},
+            {"text": "Comfortable", "score": 1},
+            {"text": "Neutral", "score": 2},
+            {"text": "Uncomfortable", "score": 3},
+            {"text": "Very uncomfortable", "score": 4},
+        ],
+    },
+    {
+        "id": 10,
+        "text": "How often do you keep a record tracking your academic progress and improvements?",
+        "options": [
+            {"text": "Always", "score": 0},
+            {"text": "Often", "score": 1},
+            {"text": "Sometimes", "score": 2},
+            {"text": "Rarely", "score": 3},
+            {"text": "Never", "score": 4},
+        ],
+    },
+    {
+        "id": 11,
+        "text": "When you fail a test, how quickly do you get back on track?",
+        "options": [
+            {"text": "Immediately — I start planning my recovery", "score": 0},
+            {"text": "Within a day or two", "score": 1},
+            {"text": "Within a week", "score": 2},
+            {"text": "After several weeks", "score": 3},
+            {"text": "I struggle to fully recover", "score": 4},
+        ],
+    },
+    {
+        "id": 12,
+        "text": "Do you view constructive criticism as an opportunity to grow?",
+        "options": [
+            {"text": "Always", "score": 0},
+            {"text": "Often", "score": 1},
+            {"text": "Sometimes", "score": 2},
+            {"text": "Rarely", "score": 3},
+            {"text": "Never", "score": 4},
+        ],
+    },
+    {
+        "id": 13,
+        "text": "How often do you compare your current academic performance to your past performance?",
+        "options": [
+            {"text": "Always — I track my progress carefully", "score": 0},
+            {"text": "Often", "score": 1},
+            {"text": "Sometimes", "score": 2},
+            {"text": "Rarely", "score": 3},
+            {"text": "Never", "score": 4},
+        ],
+    },
+    {
+        "id": 14,
+        "text": "When classmates outperform you, how does it make you feel?",
+        "options": [
+            {"text": "Inspired to work harder", "score": 0},
+            {"text": "Slightly motivated", "score": 1},
+            {"text": "Neutral", "score": 2},
+            {"text": "Discouraged", "score": 3},
+            {"text": "Deeply demotivated", "score": 4},
+        ],
+    },
+    {
+        "id": 15,
+        "text": "How often do you revise your study strategies after poor academic results?",
+        "options": [
+            {"text": "Always", "score": 0},
+            {"text": "Often", "score": 1},
+            {"text": "Sometimes", "score": 2},
+            {"text": "Rarely", "score": 3},
+            {"text": "Never", "score": 4},
+        ],
+    },
+    {
+        "id": 16,
+        "text": "How strongly do you believe that mistakes are a natural and essential part of learning?",
+        "options": [
+            {"text": "Completely — mistakes are necessary", "score": 0},
+            {"text": "Mostly", "score": 1},
+            {"text": "Somewhat", "score": 2},
+            {"text": "Slightly", "score": 3},
+            {"text": "Not at all", "score": 4},
+        ],
+    },
+    {
+        "id": 17,
+        "text": "How often do you try a different approach after failing at an academic task?",
+        "options": [
+            {"text": "Always", "score": 0},
+            {"text": "Often", "score": 1},
+            {"text": "Sometimes", "score": 2},
+            {"text": "Rarely", "score": 3},
+            {"text": "Never", "score": 4},
+        ],
+    },
+    {
+        "id": 18,
+        "text": "How do you handle repeated mistakes in the same subject area?",
+        "options": [
+            {"text": "Develop a targeted improvement plan", "score": 0},
+            {"text": "Seek specific guidance from a teacher", "score": 1},
+            {"text": "Try harder without changing my approach", "score": 2},
+            {"text": "Feel frustrated and lose confidence", "score": 3},
+            {"text": "Avoid that subject area entirely", "score": 4},
+        ],
+    },
+    {
+        "id": 19,
+        "text": "How often do you acknowledge and celebrate your own academic growth over time?",
+        "options": [
+            {"text": "Always", "score": 0},
+            {"text": "Often", "score": 1},
+            {"text": "Sometimes", "score": 2},
+            {"text": "Rarely", "score": 3},
+            {"text": "Never", "score": 4},
+        ],
+    },
+    {
+        "id": 20,
+        "text": "When given a chance to redo or correct an assignment, how do you approach it?",
+        "options": [
+            {"text": "I thoroughly analyse errors and resubmit with full effort", "score": 0},
+            {"text": "I correct errors and make some improvements", "score": 1},
+            {"text": "I make minimal changes just to pass", "score": 2},
+            {"text": "I rarely take the opportunity", "score": 3},
+            {"text": "I never bother redoing assignments", "score": 4},
+        ],
+    },
+]
+
+HARDCODED_STATES: list = [
+    {
+        "min": 0, "max": 13,
+        "label": "Exceptional Growth Mindset",
+        "emoji": "🌟",
+        "color": "#1a7f3c",
+        "description": (
+            "You have an outstanding attitude toward mistakes and excellent academic resilience. "
+            "You consistently turn errors into growth opportunities. "
+            "No intervention needed — keep inspiring others!"
+        ),
+    },
+    {
+        "min": 14, "max": 26,
+        "label": "Strong Positive Attitude",
+        "emoji": "✅",
+        "color": "#2d9e5f",
+        "description": (
+            "You embrace mistakes as learning opportunities and actively track your academic growth. "
+            "Your mindset is healthy and productive. "
+            "Continue applying your reflective habits."
+        ),
+    },
+    {
+        "min": 27, "max": 39,
+        "label": "Good Tracking Ability",
+        "emoji": "📈",
+        "color": "#5aaa3b",
+        "description": (
+            "You generally learn from mistakes but could improve consistency in reflection. "
+            "Consider keeping a more structured error journal to sustain your growth trajectory."
+        ),
+    },
+    {
+        "min": 40, "max": 52,
+        "label": "Moderate Growth Orientation",
+        "emoji": "⚠️",
+        "color": "#e0a500",
+        "description": (
+            "You sometimes struggle with processing mistakes constructively. "
+            "Try reframing errors as data points rather than failures. "
+            "Practising self-compassion and structured reflection may help."
+        ),
+    },
+    {
+        "min": 53, "max": 65,
+        "label": "Low Growth Orientation",
+        "emoji": "📉",
+        "color": "#e07800",
+        "description": (
+            "You tend to avoid mistakes rather than learn from them. "
+            "Keeping an error journal and seeking regular feedback from teachers "
+            "is strongly recommended to build a healthier academic mindset."
+        ),
+    },
+    {
+        "min": 66, "max": 80,
+        "label": "Fixed Mindset Tendency",
+        "emoji": "🔴",
+        "color": "#c0392b",
+        "description": (
+            "Mistakes significantly affect your academic confidence and motivation. "
+            "Seeking academic counselling or support resources is recommended. "
+            "Remember: every expert was once a beginner who did not give up."
+        ),
+    },
+]
+
+
+# ══════════════════════════════════════════════════════════
+#  MAIN APP ENTRY POINT
+# ══════════════════════════════════════════════════════════
 def main() -> None:
     """Main Streamlit app — entry point."""
     st.set_page_config(
@@ -627,10 +991,11 @@ def main() -> None:
         initial_sidebar_state="collapsed",
     )
 
+    # Global CSS — no hardcoded background so it works in both light and dark mode
     st.markdown("""
         <style>
         .block-container { padding-top: 2rem; padding-bottom: 2rem; }
-        div[data-testid="stForm"] { background: #f9f9fb; border-radius: 12px; padding: 1.5rem; }
+        div[data-testid="stForm"] { border-radius: 12px; padding: 1.5rem; }
         .stRadio > div { gap: 0.3rem; }
         </style>
     """, unsafe_allow_html=True)
