@@ -1,0 +1,269 @@
+{
+  "survey_title": "Learning from Mistakes Attitude & Academic Growth Tracking Scale",
+  "questions": [
+    {
+      "id": 1,
+      "text": "When you make an academic mistake, how do you typically feel afterward?",
+      "options": [
+        {"text": "Motivated to improve immediately", "score": 0},
+        {"text": "Slightly discouraged but recover quickly", "score": 1},
+        {"text": "Neutral — it happens to everyone", "score": 2},
+        {"text": "Discouraged for a while", "score": 3},
+        {"text": "Very discouraged and unmotivated", "score": 4}
+      ]
+    },
+    {
+      "id": 2,
+      "text": "How often do you reflect on the reasons behind your academic errors?",
+      "options": [
+        {"text": "Always", "score": 0},
+        {"text": "Often", "score": 1},
+        {"text": "Sometimes", "score": 2},
+        {"text": "Rarely", "score": 3},
+        {"text": "Never", "score": 4}
+      ]
+    },
+    {
+      "id": 3,
+      "text": "When you receive a low grade, what is your first reaction?",
+      "options": [
+        {"text": "Analyse what went wrong and plan to fix it", "score": 0},
+        {"text": "Seek feedback from the teacher", "score": 1},
+        {"text": "Accept it and move on", "score": 2},
+        {"text": "Feel frustrated and dwell on it", "score": 3},
+        {"text": "Give up on the subject", "score": 4}
+      ]
+    },
+    {
+      "id": 4,
+      "text": "How frequently do you revisit past mistakes to extract lessons from them?",
+      "options": [
+        {"text": "Always", "score": 0},
+        {"text": "Often", "score": 1},
+        {"text": "Sometimes", "score": 2},
+        {"text": "Rarely", "score": 3},
+        {"text": "Never", "score": 4}
+      ]
+    },
+    {
+      "id": 5,
+      "text": "Do you believe your academic abilities can be developed through effort?",
+      "options": [
+        {"text": "Strongly agree", "score": 0},
+        {"text": "Agree", "score": 1},
+        {"text": "Neutral", "score": 2},
+        {"text": "Disagree", "score": 3},
+        {"text": "Strongly disagree", "score": 4}
+      ]
+    },
+    {
+      "id": 6,
+      "text": "How often do you actively seek constructive feedback after making errors?",
+      "options": [
+        {"text": "Always", "score": 0},
+        {"text": "Often", "score": 1},
+        {"text": "Sometimes", "score": 2},
+        {"text": "Rarely", "score": 3},
+        {"text": "Never", "score": 4}
+      ]
+    },
+    {
+      "id": 7,
+      "text": "When you struggle with an academic topic, how do you respond?",
+      "options": [
+        {"text": "Seek extra resources and help immediately", "score": 0},
+        {"text": "Ask for help eventually", "score": 1},
+        {"text": "Struggle on my own for a long time", "score": 2},
+        {"text": "Avoid the topic as much as possible", "score": 3},
+        {"text": "Give up on understanding it", "score": 4}
+      ]
+    },
+    {
+      "id": 8,
+      "text": "How often do you set new academic goals after identifying a personal weakness?",
+      "options": [
+        {"text": "Always", "score": 0},
+        {"text": "Often", "score": 1},
+        {"text": "Sometimes", "score": 2},
+        {"text": "Rarely", "score": 3},
+        {"text": "Never", "score": 4}
+      ]
+    },
+    {
+      "id": 9,
+      "text": "How comfortable are you discussing your academic mistakes with classmates or teachers?",
+      "options": [
+        {"text": "Very comfortable", "score": 0},
+        {"text": "Comfortable", "score": 1},
+        {"text": "Neutral", "score": 2},
+        {"text": "Uncomfortable", "score": 3},
+        {"text": "Very uncomfortable", "score": 4}
+      ]
+    },
+    {
+      "id": 10,
+      "text": "How often do you keep a record tracking your academic progress and improvements?",
+      "options": [
+        {"text": "Always", "score": 0},
+        {"text": "Often", "score": 1},
+        {"text": "Sometimes", "score": 2},
+        {"text": "Rarely", "score": 3},
+        {"text": "Never", "score": 4}
+      ]
+    },
+    {
+      "id": 11,
+      "text": "When you fail a test, how quickly do you get back on track?",
+      "options": [
+        {"text": "Immediately — I start planning my recovery", "score": 0},
+        {"text": "Within a day or two", "score": 1},
+        {"text": "Within a week", "score": 2},
+        {"text": "After several weeks", "score": 3},
+        {"text": "I struggle to fully recover", "score": 4}
+      ]
+    },
+    {
+      "id": 12,
+      "text": "Do you view constructive criticism as an opportunity to grow?",
+      "options": [
+        {"text": "Always", "score": 0},
+        {"text": "Often", "score": 1},
+        {"text": "Sometimes", "score": 2},
+        {"text": "Rarely", "score": 3},
+        {"text": "Never", "score": 4}
+      ]
+    },
+    {
+      "id": 13,
+      "text": "How often do you compare your current academic performance to your past performance?",
+      "options": [
+        {"text": "Always — I track my progress carefully", "score": 0},
+        {"text": "Often", "score": 1},
+        {"text": "Sometimes", "score": 2},
+        {"text": "Rarely", "score": 3},
+        {"text": "Never", "score": 4}
+      ]
+    },
+    {
+      "id": 14,
+      "text": "When classmates outperform you, how does it make you feel?",
+      "options": [
+        {"text": "Inspired to work harder", "score": 0},
+        {"text": "Slightly motivated", "score": 1},
+        {"text": "Neutral", "score": 2},
+        {"text": "Discouraged", "score": 3},
+        {"text": "Deeply demotivated", "score": 4}
+      ]
+    },
+    {
+      "id": 15,
+      "text": "How often do you revise your study strategies after poor academic results?",
+      "options": [
+        {"text": "Always", "score": 0},
+        {"text": "Often", "score": 1},
+        {"text": "Sometimes", "score": 2},
+        {"text": "Rarely", "score": 3},
+        {"text": "Never", "score": 4}
+      ]
+    },
+    {
+      "id": 16,
+      "text": "How strongly do you believe that mistakes are a natural and essential part of learning?",
+      "options": [
+        {"text": "Completely — mistakes are necessary", "score": 0},
+        {"text": "Mostly", "score": 1},
+        {"text": "Somewhat", "score": 2},
+        {"text": "Slightly", "score": 3},
+        {"text": "Not at all", "score": 4}
+      ]
+    },
+    {
+      "id": 17,
+      "text": "How often do you try a different approach after failing at an academic task?",
+      "options": [
+        {"text": "Always", "score": 0},
+        {"text": "Often", "score": 1},
+        {"text": "Sometimes", "score": 2},
+        {"text": "Rarely", "score": 3},
+        {"text": "Never", "score": 4}
+      ]
+    },
+    {
+      "id": 18,
+      "text": "How do you handle repeated mistakes in the same subject area?",
+      "options": [
+        {"text": "Develop a targeted improvement plan", "score": 0},
+        {"text": "Seek specific guidance from a teacher", "score": 1},
+        {"text": "Try harder without changing my approach", "score": 2},
+        {"text": "Feel frustrated and lose confidence", "score": 3},
+        {"text": "Avoid that subject area entirely", "score": 4}
+      ]
+    },
+    {
+      "id": 19,
+      "text": "How often do you acknowledge and celebrate your own academic growth over time?",
+      "options": [
+        {"text": "Always", "score": 0},
+        {"text": "Often", "score": 1},
+        {"text": "Sometimes", "score": 2},
+        {"text": "Rarely", "score": 3},
+        {"text": "Never", "score": 4}
+      ]
+    },
+    {
+      "id": 20,
+      "text": "When given a chance to redo or correct an assignment, how do you approach it?",
+      "options": [
+        {"text": "I thoroughly analyse errors and resubmit with full effort", "score": 0},
+        {"text": "I correct errors and make some improvements", "score": 1},
+        {"text": "I make minimal changes just to pass", "score": 2},
+        {"text": "I rarely take the opportunity", "score": 3},
+        {"text": "I never bother redoing assignments", "score": 4}
+      ]
+    }
+  ],
+  "psychological_states": [
+    {
+      "min": 0, "max": 13,
+      "label": "Exceptional Growth Mindset",
+      "emoji": "🌟",
+      "color": "#1a7f3c",
+      "description": "You have an outstanding attitude toward mistakes and excellent academic resilience. You consistently turn errors into growth opportunities. No intervention needed — keep inspiring others!"
+    },
+    {
+      "min": 14, "max": 26,
+      "label": "Strong Positive Attitude",
+      "emoji": "✅",
+      "color": "#2d9e5f",
+      "description": "You embrace mistakes as learning opportunities and actively track your academic growth. Your mindset is healthy and productive. Continue applying your reflective habits."
+    },
+    {
+      "min": 27, "max": 39,
+      "label": "Good Tracking Ability",
+      "emoji": "📈",
+      "color": "#5aaa3b",
+      "description": "You generally learn from mistakes but could improve consistency in reflection. Consider keeping a more structured error journal to sustain your growth trajectory."
+    },
+    {
+      "min": 40, "max": 52,
+      "label": "Moderate Growth Orientation",
+      "emoji": "⚠️",
+      "color": "#e0a500",
+      "description": "You sometimes struggle with processing mistakes constructively. Try reframing errors as data points rather than failures. Practising self-compassion and structured reflection may help."
+    },
+    {
+      "min": 53, "max": 65,
+      "label": "Low Growth Orientation",
+      "emoji": "📉",
+      "color": "#e07800",
+      "description": "You tend to avoid mistakes rather than learn from them. Keeping an error journal and seeking regular feedback from teachers is strongly recommended to build a healthier academic mindset."
+    },
+    {
+      "min": 66, "max": 80,
+      "label": "Fixed Mindset Tendency",
+      "emoji": "🔴",
+      "color": "#c0392b",
+      "description": "Mistakes significantly affect your academic confidence and motivation. Seeking academic counselling or support resources is recommended. Remember: every expert was once a beginner who did not give up."
+    }
+  ]
+}
